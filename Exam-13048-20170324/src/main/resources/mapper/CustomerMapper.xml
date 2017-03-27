@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hand.ssm.mapper.CustomerMapper">
+
+	<resultMap id="mySet" type="com.hand.ssm.dto.Customer">
+		<id column="customer_id" property="customerId" jdbcType="DECIMAL" />
+		<result column="first_name" property="firstName" jdbcType="VARCHAR" />
+		<result column="last_name" property="lastName" jdbcType="VARCHAR" />
+		<result column="address_id" property="addressId" jdbcType="DECIMAL" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="last_update" property="lastUpdate" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="select" parameterType="com.hand.ssm.dto.Customer"
+		resultMap="mySet">
+		SELECT
+		c.customer_id,c.first_name,c.last_name,c.email,c.address_id,a.address,c.last_update
+		FROM customer c, address a WHERE c.address_id = a.address_id ORDER BY c.customer_id DESC
+		LIMIT 15 
+	</select>
+
+	<resultMap id="login" type="Customer">
+		<id column="customer_id" property="customerId" jdbcType="DECIMAL" />
+		<result column="first_name" property="firstName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="login" parameterType="java.lang.String" resultMap="login">
+		SELECT customer_id,first_name FROM customer WHERE first_name =
+		#{firstName}
+	</select>
+
+	<!-- 分页SQL语句 -->
+	<select id="selectByPage" parameterType="com.hand.ssm.dto.Page"
+		resultMap="mySet">
+		SELECT c.customer_id,
+		c.first_name,c.last_name,c.email,c.address_id,a.address,c.last_update
+		FROM customer c, address a WHERE c.address_id = a.address_id LIMIT
+		#{startrows},#{pageSize}
+	</select>
+
+	<!-- 取得记录的总数 -->
+	<select id="getProductsCount" resultType="long">
+		SELECT COUNT(*) FROM
+		customer
+	</select>
+
+	<delete id="delete" parameterType="java.lang.Integer">
+		SET FOREIGN_KEY_CHECKS = 0;
+		delete from customer where customer_id=#{id};
+		SET FOREIGN_KEY_CHECKS = 1;
+	</delete>
+
+
+	<insert id="insert" parameterType="com.hand.ssm.dto.Customer">
+		insert into
+		customer(store_id,first_name,last_name,email,create_date,address_id)
+		values(1,#{firstName},#{lastName},#{email},SYSDATE(),#{addressId}
+		<!-- (select address_id from address where address = #{address}) -->
+		);
+	</insert>
+	
+	<select id="edit" parameterType="java.lang.Integer" resultMap="mySet">
+		SELECT
+		customer_id,first_name,last_name,email,address_id,last_update
+		FROM customer WHERE customer_id=#{custId};
+	</select>
+	
+	<update id="update" parameterType="com.hand.ssm.dto.Customer" >
+		UPDATE customer SET first_name=#{firstName},last_name=#{lastName},email=#{email},
+ 			address_id=#{addressId}
+ 			<!-- (select address_id from address where address = #{address}) -->
+ 			,last_update=SYSDATE()
+		WHERE customer_id = #{customerId};
+	</update>
+	
+	<resultMap id="site" type="com.hand.ssm.dto.Address">
+		<id column="address_id" property="addressId" jdbcType="DECIMAL" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="site" resultMap="site">
+		SELECT address_id,address from address;
+	</select>
+
+</mapper>
